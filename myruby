@@ -1,1 +1,18 @@
-so
+開発環境の起動、停止
+立ち上げコマンド
+$docker-compose up -d
+
+$docker-compose stop
+コンテナの停止
+
+$docker-compose down
+コンテナの削除
+削除しても再度立ち上げコマンドで立ち上がる
+
+
+$docker-compose up 
+-dをつけない場合、コンテナのログを確認できる
+サイトにアクセスした際のログを確認できる
+しかし、この状態でCntrl+cで強制終了するとrailsがどのプロセス番号で起動しているのか記録しているserver.pidファイルが残ってしまい、次回の起動に失敗することがある
+ A server is already running. Check /app/tmp/pids/server.pid.
+->このようなエラーがでたら、pidファイルを削除して再度起動コマンドを実行する
