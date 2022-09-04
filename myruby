@@ -16,3 +16,5 @@ $docker-compose up
 しかし、この状態でCntrl+cで強制終了するとrailsがどのプロセス番号で起動しているのか記録しているserver.pidファイルが残ってしまい、次回の起動に失敗することがある
  A server is already running. Check /app/tmp/pids/server.pid.
 ->このようなエラーがでたら、pidファイルを削除して再度起動コマンドを実行する
+
+http://localhost:3000/rails/info/routes
