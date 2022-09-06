@@ -4,7 +4,8 @@ class BoardsController < ApplicationController
 
   def new
     @board = Board.new
-    binding.pry
+
+    
   end
 end
 
