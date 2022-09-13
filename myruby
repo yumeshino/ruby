@@ -18,3 +18,8 @@ $docker-compose up
 ->このようなエラーがでたら、pidファイルを削除して再度起動コマンドを実行する
 
 http://localhost:3000/rails/info/routes
+
+biding.pry
+単語
+ctrl+com+f 検索
+
