@@ -1,5 +1,7 @@
+
+
 class BoardsController < ApplicationController
-  before_action :set_target_board, only: %i[show edit updatate destroy]
+  before_action :set_target_board, only: %i[show edit update destroy]
 
   def index
     @boards = Board.page(params[:page])
@@ -27,30 +29,32 @@ class BoardsController < ApplicationController
   end
 
   def edit
+    @board.attributes = flash[:board] if flash[:board]
   end
 
   def update
-    @board.update(board_params)
-
-    redirect_to board
+    if @board.update(board_params)
+      redirect_to @board
+    else
+      redirect_to :back, flash: {
+        board: @board,
+        error_messages: @board.errors.full_messages
+      }
+    end
   end
 
   def destroy
-    @board.destroy
+    @board.delete
     redirect_to boards_path, flash: { notice: "「#{@board.title}」の掲示板が削除されました" }
   end
 
-
   private
-  # このprivateメソッドを呼ぶことでparamsの中にあるboardのキーの中のname、titile、bodyの値のみを取得する
+
   def board_params
-    params.require(:board).permit(:name,:title,:body)
+    params.require(:board).permit(:name, :title, :body, tag_ids: [])
   end
-  
+
   def set_target_board
     @board = Board.find(params[:id])
   end
 end
-
-
-
