@@ -23,3 +23,49 @@ biding.pry
 単語
 ctrl+com+f 検索
 
+ーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーー
+railsを用いたwebページの作成（rootの設定、controller・viewの作成）
+１rootingの設定
+rooting設定ファイル:config/routes.rb
+rootingの定義はブロック内に記述する
+root 'boards#index'
+rootは、この環境開発の場合localhost:3000にアクセスがきた場合のrootingを意味する
+rootの後ろには処理するcontrollerとmethodを指定する
+ここでは、localhost:3000にアクセスが来たら、BoardsControllerクラスのindexメソッドを実行するように定義している
+
+２controllerの作成
+controllerファイル:app/conntorollerディレクトリの中に作成する
+今回作成するのはBoardsControllerなので、app/controller/boards_controller.rbを作成する
+controllerを作成する際は小文字で'controller名_controller.rb'の形で作成する
+
+
+ファイルの中身の設定
+①BoardsControllerクラスを定義
+  キャメルケースで記述する
+  rootの定義に合わせてクラス名が決まる
+②ApplicationControllerの継承
+  基本的にcontrollerを定義する際はApplicationControllerを継承する
+  これによって定義したクラスがcontrollerとして機能するようになる
+③indexmethodの定義
+  クラスの中にはrootに指定したようにindexmethodを定義する
+  rootで定義したmethodのことをアクションという
+  今回の場合だと、このindexmethodのことをboardscontrollerのindexアクションと呼ぶ
+class BoardsController < ApplicationController
+ def index
+ end
+end
+
+３viewの作成
+app/viewsの下にcontroller名と同じの名前のディレクトリを作成して、その下に各アクションに対応するviewを作成する
+今回はboardscontrollerなのでapp/views/boardsディレクトリを作成する
+indexアクションが呼び出された場合に使用するviewを作成する
+今回はindexアクションんのviewなのでindex.html.erbとなる
+こルールに合わせてviewを作成することにより自動的にindex.html.erbの内容がwebページに表示される
+webページのコンテンツを表示する処理のことをレンダリングという
+
+
+
+
+
+
+
