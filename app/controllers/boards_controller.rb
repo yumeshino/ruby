@@ -33,6 +33,7 @@ class BoardsController < ApplicationController
     @board.attributes = flash[:board] if flash[:board]
   end
 
+  
   def update
     if @board.update(board_params)
       redirect_to @board
