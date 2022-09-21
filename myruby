@@ -71,30 +71,69 @@ Bootstrapとは？
 BootstrapのようなデザインのテンプレートととなるCSSのことをCSSフレームワークと呼ぶ
 
 導入方法
-１gemファイルにBootstrapをインストールする
+１、gemファイルにBootstrapをインストールする
   gem 'bootstrap','~> 4.0.0'
   gem 'mini_racer'
   gemファイルを変更した際は
   docker-compose buildコマンドをターミナルで実行することでgemファイルのgemがインストールされる
 
-２application.cssファイルの拡張子を.scssに変更する
+２、application.cssファイルの拡張子を.scssに変更する
 app/assets/stylesheets配下にあるapplication.cssをapplication.scssに変更する
 application.scssの中の最初から記載されている
 require_treeやrequire_selfはBootstrapの動作に影響を与えるため削除する
 そして、BootstrapのCSSを読み込むためにインポートの定義を追加する
 @import "bootstrap"
 
-３application.jsファイルを編集する
+３、application.jsファイルを編集する
 app/assets/javascripts配下にあるapplication.jsを編集する
 元々書いてあるjqueryをjquery3に変更
 Bootstrapの機能を使うために下の2行を追加
 //= require popper
 //= require bootstrap-sprokets
+ーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーー
+
+Modelファイルの作成
+
+Modelとは？
+Modelはデータベースとやり取りを行うクラスのこと
+データベースとは何らかの情報（人物の情報や商品の情報など）を集め、データの操作や検索を行えるようにしたもの
+
+マイグレーションファイル
+データベースにテーブルを作成したり、既存のテーブルの定義を変更する場合に使用する
+
+作成方法
+docker-compose run web bundle exec rails g model board name:string title:string body:text
+
+docker-compose run web・・webサービスのコンテナ内で後ろに続くコマンドを実行することを意味する
+
+bundle exec rails g model・・Railsプロジェクトにインストールされたrailsコマンドを実行する。rails g modelでマイグレーションファイルやモデルのファイルなどが作成される。gはジェネレートの略。
+
+board name:string title:string body:text・・boardは作成するmodel名・boardモデルの作成によってboardsテーブルを作成するマイグレーションファイルが作成される。基本的にモデル名は単数形、テーブル名は複数形というルール。
+それ以降はテーブルに作成するカラム:カラムの型
+ここではString型のnameカラム、String型のtitleカラム、Text型のbodyカラムを作成している
 
 
 
+マイグレーションファイルの確認
+マイグレーションファイルはdb/migrateディレクトリーの下に作成される。ファイル名にはジェネレートコマンドを実行した日時がつく
+マイグレーションファイルにはデータベースにテーブルを作成する為の定義が記載される
+マイグレーションファイルとして機能するようにActiveRecord::migrationを継承している
+メソッドにはchangeメソッドが定義されており、メソッド内に定義されたテーブルの作成や修正を行うことができ、間違った場合などに元に戻すこともできるメソッド
 
 
+モデルファイルの確認
+モデルファイルはapp/modelsディレクトリーにある
+モデルのファイル名を単数形にするのはモデルで共通のルール
+ApplicationRecordはモデルとして機能させるために継承されている
+モデルにはマイグレーションファイルと違い、カラムの情報は渡されていないが、自動的にboardsテーブルに作成されたカラムのデータを扱うことができる。
+命名規則によりboardモデルはboardsテーブルと関連付いており、boardsテーブルの各レコードをひとつのboardクラスのオブジェクトとして扱うことができる
+こういったデータベースの各レコードをデータのORマッパーという
+
+
+マイグレーションの実行
+マイグレーションファイルが作成されただけだとテーブルの作成は行われないのでマイグレーションを実行する
+docker-compose run web bundle exec rake db:migrate
+このコマンドでまだ未実行のマイグレーションファイルの内容を実行する。今回だとboardsテーブル作成のマイグレーションが実行される
 
 
 
