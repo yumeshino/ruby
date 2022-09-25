@@ -260,6 +260,65 @@ binding.pryを書いたままだと画面を表示する度に処理が止まっ
 
 フォームに入力した掲示板データを保存する流れ（paramsメソッド、createメソッド、permitメソッド）
 
+掲示板などに書き込みをしたものをデータベースに保存する流れやポイントについてまとめる
+createアクションへのルート
+
+
+１、rooting設定
+rooting設定ファイル:config/routes.rb
+（画像）
+表を確認するとcreateアクションのメソッドをパスを確認して以下のコードを記載
+post 'boards',to:'boards#create'
+
+２、createアクションの追加
+コントローラーを設定する
+ファイルの場所:app/controllers/boards_controller.rb
+def create
+end
+createメソッドでPOSTされたデータを受け取るにはparamsという変数を使う
+createメソッドは引数にキーとバリューのセットの情報を渡す。
+paramsで取得した情報はその状態になっているため、User.create(params)みたいすればフォームの情報を保存することができる
+しかし、paramsにはフォームで入力した情報以外のものが入っているためストロングパラメータというものを使用して制限をかっける必要がある
+
+params変数とは？
+paramsとは、フォームなどによって送られてきた情報（パラメーター）を取得するメソッド
+
+ストロングパラメーターとは？
+ストロングパラメータは、Web上から受けつけたパラメータが、本当に安全なデータかどうかを検証した上で、取得するための仕組み
+安全ではないデータの登録、更新を防いでくれる
+
+
+３、ストロングパラメータの設定
+ストロングパラメータの設定はコントローラーファイルに記載する
+コードは以下の通り
+private
+
+def board_params
+  params.require(:board).permit(:name, title, :body)
+end
+✅privateメソッドを呼ぶことでparamsの中にあるboardキーの中の
+name,title,bodyの値のみを取得することができる
+✅paramsのrequireメソッドでモデル名のキーを指定しpermitメソッドでそのモデルのプロパティのキーを許可する
+
+４、データベースに保存する
+  boardモデルのcreateソッドを定義して保存する
+  以下のコードを追記
+  def create 
+    Board.create(board_params)
+  end
+  （画像）
+  creteメソッドの引数に保存するパラメータを渡すことでデータベースに保存することができる
+
+
+
+
+
+
+
+
+
+
+
 
 
 
