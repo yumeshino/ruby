@@ -352,7 +352,7 @@ name,title,bodyの値のみを取得することができる
 
 （画像）
 そうすると定義済みのルート一覧が表示される
-一番左はパスのURLを表示する多mwに使用できるヘルパーメソッド
+一番左はパスのURLを表示するために使用できるヘルパーメソッド
 例えばboards_pathというヘルパーメソッドを呼び出すと/boardsのURLを返す
 （画像）
 
@@ -444,6 +444,134 @@ before_action :set_target_board, only: %i[show edit update destroy]
 不要になった箇所のコードを消してリファクタリングする
 （画像）
 ーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーー
+ページネーションの実装とseedを使ったダミーデータの作成方法
+
+ページネーションとは一覧ページに表示する件数が多い場合に1ページに全件表示するのではなく複数のページに分割して表示する機能こと
+
+ダミーデータ作成方法
+ページネーションを実装するにあたり動作確認の為にシードという初期データ投入の機能を使用する
+
+seedsファイルの編集
+編集ファイル:db/seeds.rb
+例えば50県の掲示板データを作成する場合は以下のコードを書く
+if Rails.env == 'development'
+  (1..50).each do |i|
+    Board.create(name: "ユーザー#{i}", title: "タイトル#{i}", body: "本文#{i}")
+end
+✅Rails.env == 'development'は現在の動作環境を判定する為に使用
+  Railsの動作環境
+  Railsには基本となる環境が3つある
+  test:テスト実行用の環境
+  development:環境開発
+  production:本番環境
+  この環境を切り替えることによって使用するデータベースを分けるなど、環境によって異なる動作をさせることが可能になる
+  デフォルトではdevelopmentで動作している
+  今回作成したデータは環境開発での動作確認の為に必要なものなのでdevelopment環境でのみデータが追加されるように条件分岐を入れている
+✅rangeオブジェクトで1-50までの数字をeachでループしてその中でboardのデータを作成している
+
+シードのデータを反映させる
+以下のコマンドで、シードデータの投入が実行される
+$docker-compose exec web  bundle exec rake db:seed
+✅docker-compose exec web の部分で起動中のRailsコンテナの後に続くコマンドを実行
+✅bundle exec rake db:seedの部分でseeds.rbの内容を読み込んで実行
+
+表示結果
+このままだと読みいくいのでページネーションの機能を追加していく
+（画像）
+
+
+ページネーションの実装
+ページネーションを実装するために便利なkaminariというgemを使って実装する
+
+kaminariをインストールしてファイルを設定
+①gemfileに記述
+gemfileにkaminariを追加
+（画像）
+
+②追加したgemをインストール
+$docker-compose buildでgemをインストール
+
+③コンテナの再起動
+gemがインストールできたら
+$docker-compose upでRailsコンテナを立ち上げ直す
+
+④kaminariの設定ファイルを生成
+以下のコマンドでkaminariの設定ファイルを生成する
+$docker-compose exec web bundle exec rails g kaminari:config
+
+④ページネーション用のviewファイルを作成
+以下のコマンドでkamminariのviewファイルを生成する
+このコマンドを実行するとbootstrap4のぺージネーションのデザインに合わせたviewが自動で作成される
+$docker-compose exec web bundle exec rails g kaminari:views bootstrap4
+ここまででkaminariを使う準備が完了したので、ページネーションが使えるよう他のファイルを設定していく
+
+ページネーションを表示するアクションとviewファイル設定
+def index
+    @boards = @boards.page(params[:page])
+end
+（画像）
+kaminariをインストールしたことによりpageメソッドが追加される
+pageメソッドを呼ぶことにより、引数に指定したページに表示するデータだけを取得してくれる
+デフォルトでは、1ページあたり25件のデータを取得する
+表示結果
+（画像）
+
+2ページ目も表示されるようにページのリンクをviewファイルに追加する
+kaminariのインストールによってpagenateが追加されているのでそれを呼び出してリンクを出力する
+以下のコードを記載する
+<%= pagenate @board %>
+（画像）
+pagenateの引数には一覧表示対象のオブジェクトのリストを渡す
+表示結果
+（画像）
+
+表示件数を変える
+kaminariの設定ファイルは
+config/initialize/kaminari_config.rb
+デフォルトではコメントアウトされているdefault_per_pageの設定を変えることで1ページあたりの表事件数を変更することできる
+（画像）
+設定を変えたらコンテナを再起動させる
+表示結果
+（画像）
+
+
+
+
+ーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーー
+英語表記を日本語に変える
+
+下記のようにデフォルトで英語表記に設定されている時に日本語に変える手順をメモ
+（画像）
+
+設定方法
+config/application.rbを編集
+以下のコードを追記
+config.i18n.default_local = :ja
+デフォルトのロケールをjaに設定する
+（画像）
+
+表示する日本語を設定
+config/locales.ymlを作成して編集する
+NextやFirstの表示を日本語で表示させる
+下記のコードを記載
+ja:
+   views:
+    pagination:
+      first: 最初
+      last: 最後
+      previous: 前
+      next: 次
+      truncate: ...
+  設定が完了したら一度コンテナを再起動させる
+  
+  表示結果
+  （画像）
+  ーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーー
+
+
+
+
+
 
 
 
@@ -451,8 +579,6 @@ before_action :set_target_board, only: %i[show edit update destroy]
 
 
   
-
-
 
 
 
