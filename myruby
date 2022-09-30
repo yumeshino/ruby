@@ -679,6 +679,40 @@ $docker-compose upでRailsコンテナを立ち上げ直す
 これは個別に日本語を設定する必要があるので、その方法はこの記事で
 ーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーー
 
+gem annotateの追加
+
+テーブルの構造をモデルのファイルに自動で書き出してくれる機能
+実際のテーブルの構造を確認したい時に、わざわざデータベースに接続しなくてもモデルファイルを見れば理解できるのですごい便利なgem
+
+インストール方法
+gemファイルを編集
+①gemファイルにannotateを追記
+gem 'annotate'
+これも開発時のみに使うものなのでdevelopmentのグループ内に追加する
+
+②追加したgemをインストール
+$docker-compose buildでgemをインストール
+
+③コンテナの再起動
+gemがインストールできたら
+$docker-compose upでRailsコンテナを立ち上げ直
+
+④annotationを追加
+インストールが完了下ので、既存のファイルにannotationが追記されるように以下のコマンドを実行
+$docker-compos  exec web bundle exec annotate
+これでモデルファイルなどにテーブルの構造が追記される
+（画像）
+
+自動でannotationを追記させる
+モデルが追加されるたびに毎回annotationを実行annotationが実行するのは手間なのでマイグレーションでモデルが作成された際に自動でannotationを追記するように設定する
+annotateの実行コマンドは次の通り
+$docker-compose exec web bundle exec rails g annotate:install
+これで次回のマイグレーション以降、自動でannotationが追記される
+ーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーー
+
+
+
+
 
 
 
