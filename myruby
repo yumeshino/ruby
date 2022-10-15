@@ -711,6 +711,35 @@ annotateの実行コマンドは次の通り
 $docker-compose exec web bundle exec rails g annotate:install
 これで次回のマイグレーション以降、自動でannotationが追記される
 ーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーー
+多対多の関係
+
+多対多の関係付けは中間テーブルを作成
+中間テーブルにはそれぞれのidを作成する
+
+作成方法
+モデルの作成（大元の以外の二つ）
+中間テーブルに関しては両端のモデルを紐付けるreferenceのカラムを用意する
+→$docker-compose exec web bundle  exec rails g model board_tag_relations board:references tag:references
+
+マイグレーションの実行
+この時にからのまま保存できないようにnull:falseの指定を追加してからあマイグレーションを実行する
+
+モデルのアソシエーションの設定
+中間テーブルのモデルは作成時点で既に設定が完了している
+belongs_toの指定は基本的に全て単数形
+タグから掲示板を関連付ける設定
+中間テーブルへのhas_manyの設定がひとつ
+もう一つは掲示板と関連づけるために中間テーブルを経由して掲示板と関連づける
+多対多のアソシエーションを設定するには中間テーブルに対する設定と、中間テーブルを経由して関連づける二つが必要。has_manyの指定では対象は全て複数形で書く
+    has_many :board_tag_relations
+    has_many :boards,through: :board_tag_relations
+掲示板からタグを関連づける設定
+タグとは逆で掲示板からタグへのアソシエーションの指定
+    has_many :board_tag_relations
+    has_many :tags,through: :board_tag_relations
+
+
+
 
 
 
