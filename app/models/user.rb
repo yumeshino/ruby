@@ -16,8 +16,8 @@ class User < ApplicationRecord
   has_secure_password
 
   validates :name,
-    presence: true, //入力を必須にする
-    uniqueness: true, //既に使用しているユーザー名は使用できないようにする
+    presence: true, 
+    uniqueness: true, 
     length: { maximum: 16 },
     format: {
       with: /\A[a-z0-9]+\z/,
