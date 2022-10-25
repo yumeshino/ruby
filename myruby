@@ -769,6 +769,69 @@ docker-compose run web bundle update rails
 docker-compose build
 ④コンテナを起動させる
 docker-compose up
+----------------------------------------------------------------------
+ユーザー認証機能の作成
+
+Railsの機能に備わっているhas_securepasswordメソッドを使用
+ユーザー登録時に入力されたパスワードを暗号化してデータベースに保存するもの。
+
+①gem（bcript）をダウンロード
+1,gemファイルの編集
+パスワードの暗号化にbcriptというgemが必要なのでそれをダウンロードする
+コメントアウトされた状態で最初から入っているのでコメントを外してインストールする
+2,ターミナルでdocker-compose exec web bundleを実行
+3,インストールしたgemを読み込むためにdocker-compose restart webを実行
+
+②モデルファイルの作成
+次にユーザーアカウントを保存するためのユーザーモデルを作成
+docker-compose exec web rails g model user name:string password_digest:string
+ユーザーモデルにはログイン用のユーザー名を保存するname属性と、暗号化したパスワードを保存するpassword_digest属性を作成
+password_digestというカラムはhas_securepasswordの機能で使用されるもので、暗号化したパスワードがこのpassword_digestカラムに保存される
+このジェネレーターで作成されるファイル一覧
+（画像）
+
+③NOT NULL制約をかける
+今回作成したusersテーブルのnameカラムとpassword_digestカラムは値を必須とするためnullを許容しないNULLFALSEを設定する
+また、ユーザー名であるnameカラムはユニークである必要があるため、ユニークキー制約も設定する
+ユニークキー制約とは？
+DBにおいてデータを追加や更新する際の制約。 カラムに独自性を与えルもの。 例えば、ユニーク制約を適用することで、ユーザーが新規登録をする際に、既に登録されているemailアドレスと同じアドレスで登録しようとした場合にエラーを返すことができる
+（画像）
+
+④マイグレートの実行
+修正が終わったら、マイグレートを実行してテーブルを作成する
+docker-compose web rails db:migrate
+これでユーザーを保存するためのuserモデルとusersテーブルを作成するところまで完了！
+
+⑤コントローラーファイルの作成（session,home,user）
+ユーザーのセッション情報を作成、削除を行うためのsessionsコントローラーを作成する
+docker-compose exec web rails g controller sessions create destroy --skip-template-engine
+sessionsコントローラーはセッション情報の作成、削除を行うものでページの表示は行わないため、--skip-template-engineオプションでビューファイルは作成しないようにしている
+createsアクションではログインが成功した場合に、セッション情報にログインしたユーザーのIDを設定。それ以降のユーザーアクセスでは、このセッション情報のユーザーIDから、ユーザーを検索し、ログインしているのかしていないのかを判断する
+destroyアクションでは、セッション情報からユーザーIDを削除することでログアウト機能を実装する
+このジェネレーターで作成されるファイル一覧
+（画像）
+
+次にホームコントローラーを作成
+ホームコントローラーはrootのwebページに使用する
+rootのweページとはパス指定のないURLにアクセスした場合に表示するwebページのこと・開発環境でいうとhttp//localhost:3000がそれにあたる
+docker-compose exec web rails g controller home index
+作成するアクションはトップページを表示するindexのみ
+このジェネレーターで作成されるファイル一覧
+（画像）
+
+次にユーザーコントローラーを作成
+docker-compose exec web rails g controller users new create me
+アクションは、new、create、meの3つを作成する
+newはユーザー作成フォームを表示するアクション
+createはフォームから送信されたユーザーを作成するアクション
+meはログイン中のユーザーのマイページを表示するためのアクション
+このジェネレーターで作成されるファイル一覧
+（画像）
+
+これでユーザー認証機能で使用するファイル一式を作成できたので次で中身の実装を行う
+----------------------------------------------------------------------
+
+
 
 
 
