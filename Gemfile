@@ -34,6 +34,7 @@ gem 'bootstrap','~> 4.0.0'
 gem 'mini_racer', '~> 0.3.1'
 gem 'kaminari'
 gem 'rails-i18n'
+gem 'pry-rails'
 
 
 group :development, :test do
