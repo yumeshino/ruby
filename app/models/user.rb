@@ -31,4 +31,9 @@ class User < ApplicationRecord
       now = Time.zone.now
       (now.strftime('%Y%m%d').to_i - birthday.strftime('%Y%m%d').to_i ) / 10000
     end
+
+    def name_count
+     name.size
+    end
+
 end
